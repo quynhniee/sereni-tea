@@ -1,4 +1,4 @@
-@todo
+@todo2
 Feature: Add new todos
     In order to avoid having to remember things that need doing
     As a forgetful person
@@ -13,10 +13,10 @@ Feature: Add new todos
        Given Jane has a todo list containing Buy some milk, Walk the dog
        When she adds 'Buy some cereal' to her list
        Then her todo list should contain Buy some milk, Walk the dog, Buy some cereal
-#
-#    Scenario: Adding items to several peoples lists
-#        Given James has a todo list containing Buy some milk, Walk the dog
-#        And Jill has a todo list containing Buy some milk, Buy some cheese
-#        When she adds 'Buy some cereal' to her list
-#        Then Jill's todo list should contain Buy some milk, Buy some cheese, Buy some cereal
-#        And James's todo list should contain Buy some milk, Walk the dog
+
+   Scenario: Adding items to several peoples lists
+       Given James has a todo list containing Buy some milk, Walk the dog
+       And Jill has a todo list containing Buy some milk, Buy some cheese
+       When she adds 'Buy some cereal' to her list
+       Then Jill's todo list should contain Buy some milk, Buy some cheese, Buy some cereal
+       And James's todo list should contain Buy some milk, Walk the dog

@@ -8,18 +8,16 @@ import net.serenitybdd.screenplay.actors.OnStage;
 import net.serenitybdd.screenplay.ensure.Ensure;
 import net.serenitybdd.screenplay.waits.Wait;
 
-import org.assertj.core.api.Assertions;
 import org.hamcrest.Matchers;
 import org.serenitybdd.example.questions.Item;
 import org.serenitybdd.example.questions.TodoItems;
 import org.serenitybdd.example.tasks.AddToDoItem;
 import org.serenitybdd.example.tasks.InitializeTodoList;
+import org.serenitybdd.example.tasks.SwitchUser;
 
 import java.util.List;
 
 import static net.serenitybdd.screenplay.GivenWhenThen.seeThat;
-import static org.junit.Assert.assertThat;
-
 
 public class AddToDoItemStep {
 
@@ -43,12 +41,14 @@ public class AddToDoItemStep {
         );
     }
     
+    
     @Given("{actor} has a todo list containing {itemList}")
     public void actorHasATodoListContainingItems(Actor actor, List<String> items) {
         actor.remember("todoList", items);
         actor.wasAbleTo(InitializeTodoList.withItems(items));
     }
     
+
     @Then("his/her todo list should contain {itemList}")
     public void todoListShouldContainAllItems(List<String> expectedItems) {      
         // List<String> rememberItems = OnStage.theActorInTheSpotlight().recall("todoItems");
@@ -58,5 +58,18 @@ public class AddToDoItemStep {
                 Wait.until(TodoItems.displayed(), Matchers.is(Matchers.not(Matchers.empty()))).forNoMoreThan(5).seconds(),
                 Ensure.that(TodoItems.displayed()).containsElementsFrom(expectedItems)
         );
+    }
+    
+    @Then("{actor}'s todo list should contain {itemList}")
+    public void actors_todo_list_should_contain(Actor actor, List<String> expectedItems) {
+        // First switch to the actor's todo list if needed
+        if (!OnStage.theActorInTheSpotlight().equals(actor)) {
+            OnStage.theActorInTheSpotlight().attemptsTo(SwitchUser.to(actor));
+        }
+        
+        // Now verify the items in the list
+        OnStage.theActorInTheSpotlight().should(seeThat(
+                TodoItems.displayed(), Matchers.containsInAnyOrder(expectedItems.toArray())
+        ).orComplainWith(Error.class, "The expected items were not found in " + actor.getName() + "'s list"));
     }
 }
