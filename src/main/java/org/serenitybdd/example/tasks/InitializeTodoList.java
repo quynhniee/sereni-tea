@@ -30,6 +30,11 @@ public class InitializeTodoList implements Task {
                 new InitializeTodoList(items));
     }
 
+    public static Performable withEmptyList() {
+        return Task.where("{0} starts with an empty todo list",
+                new InitializeTodoList(Arrays.asList()));
+    }
+
     @Override
     @Step("{0} initializes todo list with #items")
     public <T extends Actor> void performAs(T actor) {

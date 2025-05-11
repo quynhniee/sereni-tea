@@ -5,16 +5,20 @@ import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 import net.serenitybdd.screenplay.Actor;
 import net.serenitybdd.screenplay.actors.OnStage;
+import net.serenitybdd.screenplay.ensure.Ensure;
+import net.serenitybdd.screenplay.waits.Wait;
+
+import org.assertj.core.api.Assertions;
 import org.hamcrest.Matchers;
 import org.serenitybdd.example.questions.Item;
 import org.serenitybdd.example.questions.TodoItems;
 import org.serenitybdd.example.tasks.AddToDoItem;
 import org.serenitybdd.example.tasks.InitializeTodoList;
-import org.serenitybdd.example.tasks.Start;
 
 import java.util.List;
 
 import static net.serenitybdd.screenplay.GivenWhenThen.seeThat;
+import static org.junit.Assert.assertThat;
 
 
 public class AddToDoItemStep {
@@ -22,10 +26,6 @@ public class AddToDoItemStep {
     @Given("that {actor} has an empty todo list")
     public void hasEmptyList(Actor actor) {
         actor.wasAbleTo(InitializeTodoList.withItems(List.of()));
-
-//        System.out.println("Starting with an empty todo list");
-//        // Implementation for ensuring the list is empty
-//        actor.wasAbleTo(Start.withAnEmptyTodoList());
     }
 
     @When("{actor} adds {string} to his/her list")
@@ -45,20 +45,18 @@ public class AddToDoItemStep {
     
     @Given("{actor} has a todo list containing {itemList}")
     public void actorHasATodoListContainingItems(Actor actor, List<String> items) {
+        actor.remember("todoList", items);
         actor.wasAbleTo(InitializeTodoList.withItems(items));
     }
     
-    @Then("{actor} todo list should contain {itemList}")
-    public void todoListShouldContainAllItems(Actor actor, List<String> expectedItems) {        
-        List<String> todoItems = TodoItems.displayed().answeredBy(actor);
+    @Then("his/her todo list should contain {itemList}")
+    public void todoListShouldContainAllItems(List<String> expectedItems) {      
+        // List<String> rememberItems = OnStage.theActorInTheSpotlight().recall("todoItems");
+        // Assertions.assertThat(rememberItems).isNotEmpty();
         
-        // Check that all expected items are in the list
-        for (String expectedItem : expectedItems) {
-            actor.should(
-                seeThat("Todo list contains " + expectedItem, 
-                        a -> todoItems.contains(expectedItem))
-                    .orComplainWith(Error.class, "The item was not found in the list: " + expectedItem)
-            );
-        }
+         OnStage.theActorInTheSpotlight().attemptsTo(
+                Wait.until(TodoItems.displayed(), Matchers.is(Matchers.not(Matchers.empty()))).forNoMoreThan(5).seconds(),
+                Ensure.that(TodoItems.displayed()).containsElementsFrom(expectedItems)
+        );
     }
 }
